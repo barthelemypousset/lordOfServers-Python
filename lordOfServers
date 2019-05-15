@@ -1,50 +1,38 @@
 #!/usr/local/bin/python3
 
-import sys, warnings, getopt, paramiko
+import sys, warnings, argparse, paramiko
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 client = paramiko.SSHClient()
 
-#params
+# argparser
+parser =  argparse.ArgumentParser()
+parser.add_argument("server", help="server on which you'll send the command")
+parser.add_argument("command", help="command to send")
+args = parser.parse_args()
+
+# params
 host = '192.168.1.15'
 user = 'pi'
 passw = 'raspberry'
-cmd = 'uname -a'
 
-helpmenu = 0
-
-#functions
-
+# functions
 def usage():
     print("nope !")
 
 def verbose():
     print("verbose")
-
-def main(argv):
-    try:
-        opts, args = getopt.getopt(argv, "c:h", ["command=", "help"])
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-    for o, a in opts:
-        print(o,a)
-        if o == "-h":
-            global helpmenu
-            helpmenu = 1
-        elif o == "-c":
-            cmd = a
-    return
+    print(cmd)
+    print(helpmenu)
 
 def send():
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(host, username=user, password=passw)
-#client.exec_command(cmd)
+    #client.exec_command(cmd)
     stdin, stdout, stderr = client.exec_command(cmd)
     for line in stdout.read().splitlines():
          print (line)
     client.close()
 
-#main code
-main(sys.argv[1:])
-print(cmd)
-print(helpmenu)
+# main code
+print(args.server)
+print(args.command)
