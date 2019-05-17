@@ -1,32 +1,35 @@
-#!/usr/local/bin/python3
-
 import sys, warnings, argparse, paramiko
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 client = paramiko.SSHClient()
 
 # argparser
 parser =  argparse.ArgumentParser()
-parser.add_argument("server", help="server on which you'll send the command")
-parser.add_argument("command", help="command to send")
+group_target = parser.add_mutually_exclusive_group()
+group_target.add_argument("-t", "--target", nargs="?", const="", default="", help="host on which you'll send the command (cannot be used with -f)")
+group_target.add_argument("-f", "--file", help="file of hosts on which you'll send the command (cannot be used with -t)", action="store_true", default=False)
+parser.add_argument("-p", "--port", nargs="?", const="22", default="22", type=int, help="port to use")
+parser.add_argument("-c", "--command", nargs="?", const="", default="", help="command to send")
+parser.add_argument("-v", "--verbose", help="print parameter (debug)", action="store_true", default=False)
 args = parser.parse_args()
 
 # params
-host = '192.168.1.15'
+target = args.target
 user = 'pi'
 passw = 'raspberry'
+cmd = args.command
 
 # functions
 def usage():
     print("nope !")
 
 def verbose():
-    print("verbose")
-    print(cmd)
-    print(helpmenu)
+    print("Debug:")
+    print(" command:"+cmd)
+    print(" target:"+target)
 
 def send():
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(host, username=user, password=passw)
+    client.connect(target, username=user, password=passw)
     #client.exec_command(cmd)
     stdin, stdout, stderr = client.exec_command(cmd)
     for line in stdout.read().splitlines():
@@ -34,5 +37,12 @@ def send():
     client.close()
 
 # main code
-print(args.server)
-print(args.command)
+
+if args.verbose:
+    verbose()
+
+if args.target:
+    print("target")
+
+if args.command:
+    print("command")
